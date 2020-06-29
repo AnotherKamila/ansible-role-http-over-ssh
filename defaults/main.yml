@@ -1,0 +1,9 @@
+http_over_ssh_version: 0.3.2
+http_over_ssh_binary_install_dir: /usr/local/bin
+http_over_ssh_listen_address: localhost:8080
+http_over_ssh_user: http_over_ssh
+http_over_ssh_ssh_user: http_over_ssh
+
+# pick (at least) one
+http_over_ssh_install_proxy: false
+http_over_ssh_install_key: false

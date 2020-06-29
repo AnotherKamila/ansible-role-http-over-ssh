@@ -1,0 +1,9 @@
+---
+- include: create_user.yml
+  when: (http_over_ssh_install_proxy|bool) or (http_over_ssh_install_key|bool)
+
+- include: setup_proxy.yml
+  when: http_over_ssh_install_proxy|bool
+
+- include: configure_ssh.yml
+  when: http_over_ssh_install_key|bool

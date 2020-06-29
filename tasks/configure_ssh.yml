@@ -1,0 +1,15 @@
+---
+- name: Sanity checks
+  assert:
+    that:
+      - "hostvars | json_query('@.*.http_over_ssh_proxy_public_key') | length > 0"
+    msg: This play must be run against all hosts including the proxy host(s) to be able to install the proxy's SSH keys.
+    quiet: true
+
+- name: Install proxy's public SSH keys
+  become: yes
+  authorized_key:
+    user: '{{ http_over_ssh_ssh_user }}'
+    key: '{{ item }}'
+    key_options: 'restrict,port-forwarding,permitopen=localhost:*'
+  with_items: "{{ hostvars | json_query('@.*.http_over_ssh_proxy_public_key') | flatten }}"

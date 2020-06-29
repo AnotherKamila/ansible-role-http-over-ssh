@@ -1,0 +1,23 @@
+- name: Create http-over-ssh user ({{ http_over_ssh_user }})
+  become: yes
+  user:
+    name: '{{ http_over_ssh_user }}'
+    system: true
+    shell: "/usr/sbin/nologin"
+    generate_ssh_key: '{{ http_over_ssh_install_proxy }}'
+  register: http_over_ssh_created_user
+
+- name: Set proxy public key fact
+  set_fact:
+    http_over_ssh_proxy_public_key: '{{ http_over_ssh_created_user.ssh_public_key }}'
+  when: http_over_ssh_install_proxy | bool
+
+- name: prevent crash on first start by touching the known hosts file
+  become: yes
+  file:
+    path: '{{ http_over_ssh_created_user.home }}/.ssh/known_hosts'
+    state: touch
+    owner: '{{ http_over_ssh_user }}'
+    modification_time: preserve
+    access_time: preserve
+  when: http_over_ssh_install_proxy | bool

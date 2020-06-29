@@ -1,0 +1,49 @@
+---
+- name: download http-over-ssh binary to local folder
+  become: false
+  get_url:
+    url: "https://github.com/digineo/http-over-ssh/releases/download/v{{ http_over_ssh_version }}/http-over-ssh_{{ http_over_ssh_version }}_linux_64-bit.tar.gz"
+    dest: "/tmp/http-over-ssh-{{ http_over_ssh_version }}_linux_64-bit.tar.gz"
+  register: _download_archive
+  until: _download_archive is succeeded
+  retries: 5
+  delay: 2
+  # run_once: true # <-- this cannot be set due to multi-arch support
+  delegate_to: localhost
+  check_mode: false
+
+- name: unpack http-over-ssh binary
+  become: false
+  unarchive:
+    src: "/tmp/http-over-ssh-{{ http_over_ssh_version }}_linux_64-bit.tar.gz"
+    dest: "/tmp"
+    creates: "/tmp/http-over-ssh"
+  delegate_to: localhost
+  check_mode: false
+
+- name: propagate http-over-ssh binary
+  become: yes
+  copy:
+    src:  "/tmp/http-over-ssh"
+    dest: "{{ http_over_ssh_binary_install_dir }}/http-over-ssh"
+    mode: 0755
+    owner: root
+    group: root
+  notify:
+    - restart http-over-ssh
+
+- name: Create the http-over-ssh systemd unit
+  become: yes
+  template:
+    dest: /etc/systemd/system/http-over-ssh.service
+    src: templates/http-over-ssh.service.j2
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: Enable the http-over-ssh proxy service
+  become: yes
+  systemd:
+    name: http-over-ssh
+    daemon_reload: true
+    state: started

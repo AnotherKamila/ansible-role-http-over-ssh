@@ -1,0 +1,12 @@
+[Unit]
+Description=http-over-ssh proxy service for Prometheus
+After=network.target
+
+[Service]
+Type=simple
+User={{ http_over_ssh_user }}
+ExecStart={{ http_over_ssh_binary_install_dir }}/http-over-ssh -listen {{ http_over_ssh_listen_address }} -user {{ http_over_ssh_ssh_user }}
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

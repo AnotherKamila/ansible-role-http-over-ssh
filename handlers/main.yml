@@ -1,0 +1,6 @@
+---
+- name: restart http-over-ssh
+  become: true
+  systemd:
+    name: http-over-ssh
+    state: restarted
